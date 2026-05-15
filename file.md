@@ -154,7 +154,7 @@
 
 ✻ Brewed for 2m 15s
 
-※ recap: Setting up a Flask expense tracker app on Windows. All dependencies are installed and the app is running at http://127.0.0.1:5001. Open that URL in your browser to verify it works.
+※ recap: Setting up a Flask expe  nse tracker app on Windows. All dependencies are installed and the app is running at http://127.0.0.1:5001. Open that URL in your browser to verify it works.
 
 ❯ open http://127.0.0.1:5001 in browser                                         
 
