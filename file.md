@@ -48,7 +48,8 @@
   - venv — the virtual environment (already created)
 
   Since you're on Windows, activate the venv with:
-  venv\Scripts\activate
+  venv\Scripts\a
+  ctivate
   (not source venv/bin/activate which is the Linux/Mac way)
 
 ✻ Crunched for 8s
