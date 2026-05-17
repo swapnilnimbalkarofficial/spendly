@@ -1,6 +1,8 @@
+import sqlite3
+
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 
-from database.db import get_db, init_db, seed_db
+from database.db import get_db, init_db, seed_db, create_user
 
 app = Flask(__name__)
 app.secret_key = "dev-secret-key-change-in-production"
@@ -41,7 +43,11 @@ def register():
         if len(password) < 8:
             return render_template("register.html", error="Password must be at least 8 characters.")
 
-        # TODO (Step 2): save user to database
+        try:
+            create_user(name, email, password)
+        except sqlite3.IntegrityError:
+            return render_template("register.html", error="An account with that email already exists.")
+
         return redirect(url_for("login"))
 
     return render_template("register.html")
