@@ -1,6 +1,6 @@
 import sqlite3
 
-from flask import Flask, render_template, request, redirect, url_for, session, flash
+from flask import Flask, render_template, request, redirect, url_for, session, flash, abort
 
 from database.db import get_db, init_db, seed_db, create_user
 
@@ -34,23 +34,34 @@ def privacy():
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
-        name     = request.form.get("name", "").strip()
-        email    = request.form.get("email", "").strip()
-        password = request.form.get("password", "")
+        name             = request.form.get("name", "").strip()
+        email            = request.form.get("email", "").strip()
+        password         = request.form.get("password", "")
+        confirm_password = request.form.get("confirm_password", "")
 
-        if not name or not email or not password:
-            return render_template("register.html", error="All fields are required.")
+        if not name or not email or not password or not confirm_password:
+            flash("All fields are required.")
+            return render_template("register.html")
+        if password != confirm_password:
+            flash("Passwords do not match.")
+            return render_template("register.html")
         if len(password) < 8:
-            return render_template("register.html", error="Password must be at least 8 characters.")
+            flash("Password must be at least 8 characters.")
+            return render_template("register.html")
 
         try:
             create_user(name, email, password)
         except sqlite3.IntegrityError:
-            return render_template("register.html", error="An account with that email already exists.")
+            flash("Email already registered.")
+            return render_template("register.html")
 
+        flash("Account created successfully! Please sign in.")
         return redirect(url_for("login"))
 
-    return render_template("register.html")
+    if request.method == "GET":
+        return render_template("register.html")
+
+    abort(405)
 
 
 @app.route("/login", methods=["GET", "POST"])
