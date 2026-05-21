@@ -1,9 +1,10 @@
 import sqlite3
+from datetime import datetime
 
 from flask import Flask, render_template, request, redirect, url_for, session, flash, abort
 from werkzeug.security import check_password_hash
 
-from database.db import get_db, init_db, seed_db, create_user, get_user_by_email
+from database.db import get_db, init_db, seed_db, create_user, get_user_by_email, get_user_by_id, get_expense_summary, get_recent_expenses
 
 app = Flask(__name__)
 app.secret_key = "dev-secret-key-change-in-production"
@@ -108,7 +109,38 @@ def logout():
 
 @app.route("/profile")
 def profile():
-    return "Profile page — coming in Step 4"
+    if not session.get("user_id"):
+        return redirect(url_for("login"))
+
+    user_id        = session["user_id"]
+    user           = get_user_by_id(user_id)
+    summary        = get_expense_summary(user_id)
+    recent_expenses = get_recent_expenses(user_id)
+
+    top_category = summary["by_category"][0][0] if summary["by_category"] else "—"
+
+    try:
+        dt     = datetime.fromisoformat(user["created_at"])
+        joined = f"{dt.strftime('%B')} {dt.day}, {dt.year}"
+    except Exception:
+        joined = user["created_at"]
+
+    def fmt_date(iso):
+        try:
+            d = datetime.strptime(iso, "%Y-%m-%d")
+            return f"{d.strftime('%b')} {d.day}, {d.year}"
+        except Exception:
+            return iso
+
+    return render_template(
+        "profile.html",
+        user=user,
+        summary=summary,
+        joined=joined,
+        top_category=top_category,
+        recent_expenses=recent_expenses,
+        fmt_date=fmt_date,
+    )
 
 
 @app.route("/expenses/add")
