@@ -4,10 +4,19 @@ from datetime import datetime
 from flask import Flask, render_template, request, redirect, url_for, session, flash, abort
 from werkzeug.security import check_password_hash
 
-from database.db import get_db, init_db, seed_db, create_user, get_user_by_email, get_user_by_id, get_expense_summary, get_recent_expenses
+from database.db import get_db, init_db, seed_db, create_user, get_user_by_email
+from database.queries import get_user_by_id, get_summary_stats, get_recent_transactions, get_category_breakdown
 
 app = Flask(__name__)
 app.secret_key = "dev-secret-key-change-in-production"
+
+
+def _fmt_date(iso):
+    try:
+        d = datetime.strptime(iso, "%Y-%m-%d")
+        return f"{d.strftime('%b')} {d.day}, {d.year}"
+    except Exception:
+        return iso
 
 
 # ------------------------------------------------------------------ #
@@ -112,34 +121,19 @@ def profile():
     if not session.get("user_id"):
         return redirect(url_for("login"))
 
-    user_id        = session["user_id"]
-    user           = get_user_by_id(user_id)
-    summary        = get_expense_summary(user_id)
-    recent_expenses = get_recent_expenses(user_id)
-
-    top_category = summary["by_category"][0][0] if summary["by_category"] else "—"
-
-    try:
-        dt     = datetime.fromisoformat(user["created_at"])
-        joined = f"{dt.strftime('%B')} {dt.day}, {dt.year}"
-    except Exception:
-        joined = user["created_at"]
-
-    def fmt_date(iso):
-        try:
-            d = datetime.strptime(iso, "%Y-%m-%d")
-            return f"{d.strftime('%b')} {d.day}, {d.year}"
-        except Exception:
-            return iso
+    user_id      = session["user_id"]
+    user         = get_user_by_id(user_id)
+    stats        = get_summary_stats(user_id)
+    transactions = get_recent_transactions(user_id, limit=5)
+    breakdown    = get_category_breakdown(user_id)
 
     return render_template(
         "profile.html",
         user=user,
-        summary=summary,
-        joined=joined,
-        top_category=top_category,
-        recent_expenses=recent_expenses,
-        fmt_date=fmt_date,
+        stats=stats,
+        transactions=transactions,
+        breakdown=breakdown,
+        fmt_date=_fmt_date,
     )
 
 

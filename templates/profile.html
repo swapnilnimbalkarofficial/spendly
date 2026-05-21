@@ -16,7 +16,7 @@
             <div class="profile-meta">
                 <h1 class="profile-name">{{ user["name"] }}</h1>
                 <p class="profile-email">{{ user["email"] }}</p>
-                <p class="profile-since">Member since {{ joined }}</p>
+                <p class="profile-since">Member since {{ user.member_since }}</p>
             </div>
         </div>
     </div>
@@ -26,17 +26,17 @@
         <div class="profile-stats-inner">
             <div class="stat-card">
                 <span class="stat-label">Total Spent</span>
-                <span class="stat-value">₹{{ "{:,.2f}".format(summary.total) }}</span>
+                <span class="stat-value">₹{{ "{:,.2f}".format(stats.total_spent) }}</span>
             </div>
             <div class="stat-divider"></div>
             <div class="stat-card">
                 <span class="stat-label">Expenses</span>
-                <span class="stat-value">{{ summary.count }}</span>
+                <span class="stat-value">{{ stats.transaction_count }}</span>
             </div>
             <div class="stat-divider"></div>
             <div class="stat-card">
                 <span class="stat-label">Top Category</span>
-                <span class="stat-value stat-value--sm">{{ top_category }}</span>
+                <span class="stat-value stat-value--sm">{{ stats.top_category }}</span>
             </div>
             <div class="stat-cta">
                 <a href="{{ url_for('add_expense') }}" class="btn-primary">+ Add Expense</a>
@@ -49,7 +49,7 @@
         <div class="profile-body-inner">
             <h2 class="section-title">Recent Transactions</h2>
 
-            {% if recent_expenses %}
+            {% if transactions %}
             <div class="transactions-wrap">
                 <table class="transactions-table">
                     <thead>
@@ -61,7 +61,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for e in recent_expenses %}
+                        {% for e in transactions %}
                         <tr>
                             <td class="col-date">{{ fmt_date(e["date"]) }}</td>
                             <td class="col-desc">{{ e["description"] or "—" }}</td>
@@ -87,17 +87,16 @@
         <div class="profile-body-inner">
             <h2 class="section-title">Spending by Category</h2>
 
-            {% if summary.by_category %}
-                {% set max_sub = summary.by_category[0][1] %}
+            {% if breakdown %}
                 <div class="category-list">
-                    {% for category, subtotal in summary.by_category %}
+                    {% for item in breakdown %}
                     <div class="category-row">
-                        <div class="category-name">{{ category }}</div>
+                        <div class="category-name">{{ item.name }}</div>
                         <div class="category-bar-track">
                             <div class="category-bar-fill"
-                                 style="width: {{ (subtotal / max_sub * 100) | round(1) }}%"></div>
+                                 style="width: {{ item.pct }}%"></div>
                         </div>
-                        <div class="category-amount">₹{{ "{:,.2f}".format(subtotal) }}</div>
+                        <div class="category-amount">₹{{ "{:,.2f}".format(item.amount) }}</div>
                     </div>
                     {% endfor %}
                 </div>
