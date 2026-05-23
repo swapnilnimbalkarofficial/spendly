@@ -19,6 +19,15 @@ def _fmt_date(iso):
         return iso
 
 
+def _first_of_month_n_ago(dt, n):
+    m = dt.month - n
+    y = dt.year
+    if m < 1:
+        m += 12
+        y -= 1
+    return f"{y:04d}-{m:02d}-01"
+
+
 # ------------------------------------------------------------------ #
 # Public routes                                                        #
 # ------------------------------------------------------------------ #
@@ -121,11 +130,42 @@ def profile():
     if not session.get("user_id"):
         return redirect(url_for("login"))
 
-    user_id      = session["user_id"]
-    user         = get_user_by_id(user_id)
-    stats        = get_summary_stats(user_id)
-    transactions = get_recent_transactions(user_id, limit=5)
-    breakdown    = get_category_breakdown(user_id)
+    user_id = session["user_id"]
+    user    = get_user_by_id(user_id)
+
+    start = request.args.get("start")
+    end   = request.args.get("end")
+
+    if start:
+        try:
+            datetime.strptime(start, "%Y-%m-%d")
+        except ValueError:
+            start = None
+    if end:
+        try:
+            datetime.strptime(end, "%Y-%m-%d")
+        except ValueError:
+            end = None
+
+    tx_limit = 1000 if (start or end) else 5
+
+    filter_label = None
+    if start or end:
+        parts = [_fmt_date(start) if start else "beginning",
+                 _fmt_date(end)   if end   else "today"]
+        filter_label = f"{parts[0]} – {parts[1]}"
+
+    today = datetime.today()
+    today_str = today.strftime("%Y-%m-%d")
+    presets = [
+        ("This Month",    today.replace(day=1).strftime("%Y-%m-%d"), today_str),
+        ("Last 3 Months", _first_of_month_n_ago(today, 3),          today_str),
+        ("Last 6 Months", _first_of_month_n_ago(today, 6),          today_str),
+    ]
+
+    stats        = get_summary_stats(user_id, start_date=start, end_date=end)
+    transactions = get_recent_transactions(user_id, limit=tx_limit, start_date=start, end_date=end)
+    breakdown    = get_category_breakdown(user_id, start_date=start, end_date=end)
 
     return render_template(
         "profile.html",
@@ -134,6 +174,10 @@ def profile():
         transactions=transactions,
         breakdown=breakdown,
         fmt_date=_fmt_date,
+        start=start,
+        end=end,
+        filter_label=filter_label,
+        presets=presets,
     )
 
 

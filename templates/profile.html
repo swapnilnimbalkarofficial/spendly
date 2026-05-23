@@ -21,6 +21,33 @@
         </div>
     </div>
 
+    <!-- ── Date filter ── -->
+    <div class="filter-bar">
+        <form class="filter-form" method="GET" action="{{ url_for('profile') }}">
+            <div class="filter-fields">
+                <label class="filter-label-text" for="start">From</label>
+                <input class="form-input filter-input" type="date" id="start" name="start"
+                       value="{{ start or '' }}">
+                <label class="filter-label-text" for="end">To</label>
+                <input class="form-input filter-input" type="date" id="end" name="end"
+                       value="{{ end or '' }}">
+                <button class="btn-primary filter-btn" type="submit">Filter</button>
+            </div>
+            <div class="filter-presets">
+                {% for label, pstart, pend in presets %}
+                <a class="filter-preset{% if start == pstart and end == pend %} filter-preset--active{% endif %}"
+                   href="{{ url_for('profile', start=pstart, end=pend) }}">{{ label }}</a>
+                {% endfor %}
+            </div>
+            {% if filter_label %}
+            <div class="filter-active">
+                <span class="filter-active-label">Showing: {{ filter_label }}</span>
+                <a class="filter-clear" href="{{ url_for('profile') }}">Clear</a>
+            </div>
+            {% endif %}
+        </form>
+    </div>
+
     <!-- ── Stats ── -->
     <div class="profile-stats">
         <div class="profile-stats-inner">
