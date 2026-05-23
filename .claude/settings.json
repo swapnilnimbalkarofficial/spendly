@@ -1,0 +1,120 @@
+{
+  "env": {
+    "AGENTS_OBSERVE_API_BASE_URL": "http://127.0.0.1:4981/api",
+    "AGENTS_OBSERVE_PROJECT_SLUG": "spendly",
+    "AGENTS_OBSERVE_SHUTDOWN_DELAY_MS": "0",
+    "AGENTS_OBSERVE_NOTIFICATION_ON_EVENTS": "Stop,Notification"
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash C:/Users/Hp/Downloads/agents-observe/hooks/scripts/hook.sh"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash C:/Users/Hp/Downloads/agents-observe/hooks/scripts/hook.sh"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash C:/Users/Hp/Downloads/agents-observe/hooks/scripts/hook.sh"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash C:/Users/Hp/Downloads/agents-observe/hooks/scripts/hook.sh"
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash C:/Users/Hp/Downloads/agents-observe/hooks/scripts/hook.sh"
+          }
+        ]
+      }
+    ],
+    "SubagentStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash C:/Users/Hp/Downloads/agents-observe/hooks/scripts/hook.sh"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node C:/Users/Hp/Downloads/agents-observe/hooks/scripts/observe_cli.mjs hook-autostart"
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash C:/Users/Hp/Downloads/agents-observe/hooks/scripts/hook.sh"
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash C:/Users/Hp/Downloads/agents-observe/hooks/scripts/hook.sh"
+          }
+        ]
+      }
+    ],
+    "PostToolBatch": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash C:/Users/Hp/Downloads/agents-observe/hooks/scripts/hook.sh"
+          }
+        ]
+      }
+    ]
+  }
+}
