@@ -1,12 +1,22 @@
 import sqlite3
+from datetime import datetime
 
 from flask import Flask, render_template, request, redirect, url_for, session, flash, abort
 from werkzeug.security import check_password_hash
 
 from database.db import get_db, init_db, seed_db, create_user, get_user_by_email
+from database.queries import get_user_by_id, get_summary_stats, get_recent_transactions, get_category_breakdown
 
 app = Flask(__name__)
 app.secret_key = "dev-secret-key-change-in-production"
+
+
+def _fmt_date(iso):
+    try:
+        d = datetime.strptime(iso, "%Y-%m-%d")
+        return f"{d.strftime('%b')} {d.day}, {d.year}"
+    except Exception:
+        return iso
 
 
 # ------------------------------------------------------------------ #
@@ -108,7 +118,23 @@ def logout():
 
 @app.route("/profile")
 def profile():
-    return "Profile page — coming in Step 4"
+    if not session.get("user_id"):
+        return redirect(url_for("login"))
+
+    user_id      = session["user_id"]
+    user         = get_user_by_id(user_id)
+    stats        = get_summary_stats(user_id)
+    transactions = get_recent_transactions(user_id, limit=5)
+    breakdown    = get_category_breakdown(user_id)
+
+    return render_template(
+        "profile.html",
+        user=user,
+        stats=stats,
+        transactions=transactions,
+        breakdown=breakdown,
+        fmt_date=_fmt_date,
+    )
 
 
 @app.route("/expenses/add")
